@@ -77,6 +77,7 @@ class raiderStates(Enum):
     STALKIN = 1
     CHASING = 2
     ASSAULTING = 3
+    ESCAPE = 4
 class agentTypes(Enum):
     RAIDER = 0
     CITIZEN = 1

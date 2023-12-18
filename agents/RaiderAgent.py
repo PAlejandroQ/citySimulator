@@ -21,18 +21,20 @@ class RaiderAgent(mesa.Agent):
         # self.chooseUtils = ChooseUtils()
         self.countDownChase = countDownChase
         self.victimIdentifier = None
-        self.countDownAssault = 4
+        self.countDownAssault = 10
         # self.counDownNewAssault = 10
         self.typeAgent = agentTypes.RAIDER
+        self.speed_raider = model.speed_raider
+        self.lastPosition5Before = None
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
         temMax = self.model.grid.get_neighborhood(self.pos, moore=True, 
                                                         include_center=False, 
-                                                        radius = self.model.distance_to_commute)
+                                                        radius = self.model.distance_to_commute_raider)
         temMin = self.model.grid.get_neighborhood(self.pos, moore=True, 
                                                         include_center=False, 
-                                                        radius = self.model.distance_to_commute-2)
+                                                        radius = self.model.distance_to_commute_raider-2)
         
         possible_pos = list(set(temMax)-set(temMin))
         possible_pos = self.model.filterAvailableSpace(possible_pos)
@@ -55,13 +57,15 @@ class RaiderAgent(mesa.Agent):
     def step(self):
         self.updateState()
         if self.state == raiderStates.WALK:
-            self.move_walk()
+            self.move_walk(self.speed_raider)
         elif self.state == raiderStates.STALKIN:
-            self.move_stalkin()
+            self.move_stalkin(self.speed_raider)
         elif self.state == raiderStates.CHASING:
-            self.move_chasing()
+            self.move_chasing(self.speed_raider+1)
         elif self.state == raiderStates.ASSAULTING:
             self.move_assaulting()
+        elif self.state == raiderStates.ESCAPE:
+            self.move_escape(self.speed_raider+1)
         else:
             print("FAIL STATE!!!")
         # sendGPS2API()
@@ -70,12 +74,13 @@ class RaiderAgent(mesa.Agent):
 
     def updateState(self):
         nearbyAgents = self.model.grid.get_neighbors(
-            self.pos, moore=True, include_center=False, radius = self.model.distance_field_of_view
+            self.pos, moore=True, include_center=False, radius = self.model.distance_field_of_view_raider
         )
         # print("ONLY GRID: ", field_of_view)
         if self.state == raiderStates.WALK:
-            self.countDownChase = 0
+            self.countDownChase = self.model.countDownChase
             self.victimIdentifier = None
+            self.countDownAssault = 10
             countTem = 0
             for agent in nearbyAgents:
                 if agent.typeAgent == agentTypes.CITIZEN:
@@ -109,11 +114,14 @@ class RaiderAgent(mesa.Agent):
         elif self.state == raiderStates.ASSAULTING:
             self.victimIdentifier.state = citizenStates.ASSAULTED
             if self.countDownAssault == 0:
-                self.state = raiderStates.WALK
+                self.state = raiderStates.ESCAPE
                 self.victimIdentifier.state = citizenStates.WALK
                 # self.counDownNewAssault = 10
             else:
                 self.countDownAssault-=1
+        elif self.state == raiderStates.ESCAPE:
+            if self.victimIdentifier not in nearbyAgents:
+                self.state = raiderStates.WALK
 
         else:
             print("ERROR STATES!!!")
@@ -127,6 +135,15 @@ class RaiderAgent(mesa.Agent):
         print(new_position)
         if(self.model.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
+        elif(self.model.schedule.steps % 6 == 0):
+            if self.lastPosition5Before is None:
+                self.lastPosition5Before = self.pos
+            else:
+                if self.model.chooseUtils.distance_beetween_points(self.pos,self.lastPosition5Before)<3 :
+                    self.setNewDestination()
+                else:
+                    self.lastPosition5Before = self.pos
+
         self.model.grid.move_agent(self, new_position)
     def move_stalkin(self,speed=1):
         possible_steps = self.model.grid.get_neighborhood(
@@ -138,7 +155,17 @@ class RaiderAgent(mesa.Agent):
         if(self.model.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
         self.model.grid.move_agent(self, new_position)
-    def move_chasing(self):
-        self.move_stalkin(2)
+    def move_chasing(self,speed=2):
+        self.move_stalkin(speed)
     def move_assaulting(self):
         pass
+    def move_escape(self, speed = 2):
+        possible_steps = self.model.grid.get_neighborhood(
+            self.pos, moore=True, include_center=True, radius=speed
+        )
+        possible_steps = self.model.filterAvailableSpace(possible_steps)
+        new_position = self.model.chooseUtils.furthestPoint(possible_steps, self.victimIdentifier.pos)
+        print(new_position)
+        if (self.model.chooseUtils.distance_beetween_points(new_position, self.destinationPoint) < 1):
+            self.setNewDestination()
+        self.model.grid.move_agent(self, new_position)

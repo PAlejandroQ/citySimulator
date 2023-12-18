@@ -8,8 +8,6 @@ from utils import sendGPS2API
 from utils import citizenStates, raiderStates, ChooseUtils, agentTypes
 # from RaiderAgent import RaiderAgent
 
-# distance_to_commute = 5
-# distance_field_of_view = 30
 
 class CitizenAgent(mesa.Agent):
     """An agent with fixed initial wealth."""
@@ -23,15 +21,17 @@ class CitizenAgent(mesa.Agent):
         self.countDownSuspicion = countDownSuspicion
         self.raiderIdentifier = None
         self.typeAgent = agentTypes.CITIZEN
+        self.speed_citizen = model.speed_citizen
+        self.lastPosition5Before = None
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
         temMax = self.model.grid.get_neighborhood(self.pos, moore=True, 
                                                         include_center=False, 
-                                                        radius = self.model.distance_to_commute)
+                                                        radius = self.model.distance_to_commute_citizen)
         temMin = self.model.grid.get_neighborhood(self.pos, moore=True, 
                                                         include_center=False, 
-                                                        radius = self.model.distance_to_commute-2)
+                                                        radius = self.model.distance_to_commute_citizen-2)
         
         possible_pos = list(set(temMax)-set(temMin))
         possible_pos = self.model.filterAvailableSpace(possible_pos)
@@ -54,11 +54,11 @@ class CitizenAgent(mesa.Agent):
     def step(self):
         self.updateState()
         if self.state == citizenStates.WALK:
-            self.move_walk()
+            self.move_walk(self.speed_citizen)
         elif self.state == citizenStates.SUSPICION:
-            self.move_suspicion()
+            self.move_suspicion(self.speed_citizen)
         elif self.state == citizenStates.PURSUED:
-            self.move_pursued()
+            self.move_pursued(self.speed_citizen+1)
         elif self.state == citizenStates.ASSAULTED:
             self.move_assaulted()
         else:
@@ -69,7 +69,7 @@ class CitizenAgent(mesa.Agent):
 
     def updateState(self):
         nearbyAgents = self.model.grid.get_neighbors(
-            self.pos, moore=True, include_center=False, radius = self.model.distance_field_of_view
+            self.pos, moore=True, include_center=False, radius = self.model.distance_field_of_view_citizen
         )
         # print("ONLY GRID: ", field_of_view)
         if self.state == citizenStates.WALK:
@@ -116,6 +116,14 @@ class CitizenAgent(mesa.Agent):
         print(new_position)
         if(self.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
+        elif (self.model.schedule.steps % 6 == 0):
+            if self.lastPosition5Before is None:
+                self.lastPosition5Before = self.pos
+            else:
+                if self.model.chooseUtils.distance_beetween_points(self.pos, self.lastPosition5Before) < 3:
+                    self.setNewDestination()
+                else:
+                    self.lastPosition5Before = self.pos
         self.model.grid.move_agent(self, new_position)
     def move_suspicion(self,speed=1):
         possible_steps = self.model.grid.get_neighborhood(
@@ -127,7 +135,7 @@ class CitizenAgent(mesa.Agent):
         if(self.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
         self.model.grid.move_agent(self, new_position)
-    def move_pursued(self):
-        self.move_suspicion(2)
+    def move_pursued(self,speed = 2):
+        self.move_suspicion(speed)
     def move_assaulted(self):
         pass # Keep same position
