@@ -1,6 +1,7 @@
 import mesa
 from agents.CitizenAgent import CitizenAgent
 from agents.RaiderAgent import RaiderAgent
+from metrics import *
 from utils import compute_gini, ChooseUtils
 from imageProcessing import procesar_imagen
 from agents.WallAgent import WallAgent
@@ -30,6 +31,13 @@ class MoneyModel(mesa.Model):
         self.minCitizenToStalk = minCitizenToStalk
         self.speed_citizen = speed_citizen
         self.speed_raider = speed_raider
+
+        self.metric_values_acum = {"objetivosCompletados": 0,
+                           "persecucionesFallidas": 0,
+                           "asechoFallido": 0,
+                           "asechoDetectado": 0,
+                           "persecucionDetectada": 0,
+                           "victimasSorprendidas": 0}
 
         # Create city
         if pathMap is not None:
@@ -73,8 +81,13 @@ class MoneyModel(mesa.Model):
             a.setNewDestination()
 
         self.datacollector = mesa.DataCollector(
-            model_reporters={"Gini": compute_gini},
-            agent_reporters={"Wealth": "wealth"}
+            model_reporters={"objetivosCompletados": objetivosCompletados,
+                             "persecucionesFallidas": persecucionesFallidas,
+                             "asechoFallido":asechoFallido,
+                             "asechoDetectado":asechoDetectado,
+                             "persecucionDetectada":persecucionDetectada,
+                             "victimasSorprendidas":victimasSorprendidas},
+            # agent_reporters={"Wealth": "wealth"}
         )
         # print("Holaaaaa")
 

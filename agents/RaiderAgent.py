@@ -26,6 +26,7 @@ class RaiderAgent(mesa.Agent):
         self.typeAgent = agentTypes.RAIDER
         self.speed_raider = model.speed_raider
         self.lastPosition5Before = None
+        self.surprisedVictims = 0
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
@@ -112,6 +113,8 @@ class RaiderAgent(mesa.Agent):
                 self.state = raiderStates.WALK
                     # pass # Raider have to set citizen in assaultMode
         elif self.state == raiderStates.ASSAULTING:
+            if self.victimIdentifier.state != citizenStates.PURSUED:
+                self.surprisedVictims += 1
             self.victimIdentifier.state = citizenStates.ASSAULTED
             if self.countDownAssault == 0:
                 self.state = raiderStates.ESCAPE

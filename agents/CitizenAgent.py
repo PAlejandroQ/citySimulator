@@ -23,6 +23,7 @@ class CitizenAgent(mesa.Agent):
         self.typeAgent = agentTypes.CITIZEN
         self.speed_citizen = model.speed_citizen
         self.lastPosition5Before = None
+        self.completeObjetives = 0
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
@@ -114,8 +115,10 @@ class CitizenAgent(mesa.Agent):
         possible_steps = self.model.filterAvailableSpace(possible_steps)
         new_position = self.chooseUtils.closestPoint(possible_steps,self.destinationPoint)
         print(new_position)
+        new_position = new_position if new_position is not None else self.pos
         if(self.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
+            self.completeObjetives += 1
         elif (self.model.schedule.steps % 6 == 0):
             if self.lastPosition5Before is None:
                 self.lastPosition5Before = self.pos

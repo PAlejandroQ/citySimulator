@@ -9,6 +9,13 @@ def compute_gini(model):
     B = sum(xi * (N - i) for i, xi in enumerate(x)) / (N * sum(x)+1)
     return 1 + (1 / (N+1)) - 2 * B
 
+def compute_gini(model):
+    agent_wealths = [agent.wealth for agent in model.schedule.agents]
+    x = sorted(agent_wealths)
+    N = model.num_citizen
+    B = sum(xi * (N - i) for i, xi in enumerate(x)) / (N * sum(x)+1)
+    return 1 + (1 / (N+1)) - 2 * B
+
 
 def sendGPS2API(self):
     url = "http://10.108.218.139:8080/api/checkpoints"
