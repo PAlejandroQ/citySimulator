@@ -1,0 +1,38 @@
+Metricas:
+
+NIVEL MODELO
+
+objCom = Objetivos completados
+numCi = Numero de civiles
+ciSu = Numero de civiles que sospechan
+ciPur = Numero de civiles que son perseguidos
+ciSssa = Numero de civiles que son asaltados
+
+raSta = Numero de atacantes que asechan
+raCha = Numero de atacantes que persiguen
+raAssa = Numero de atacantes que asaltan 
+surVic = victimas sorprendidas
+
+
+
+
+METRICAS DERIVADAS: (modificar modo ratio y hacerlas acumulativas
+ratio_objetivos_completados = objCom/numCi
+ratio_persecuciones_fallidas = (raCha-raAssa)/raCha
+ratio_asecho_fallido = (raSta-raCha)/raSta
+
+
+# Diferentes porque varios civiles pueden detectar atacante, mientras que atacante se centra en solo una victima
+ratio_asecho_detectado = (ciSu-raSta)/raSta # Sujeto a porcentaje constante extra basado en que muchos civiles detectan mientras que atacante solo asecha a uno
+ratio_persecucion_detectada = (raCha-ciPur)/raCha
+ratio_victimas_sorprendidas = surVic/raAssa
+
+
+---------------------
+NIVEL DE AGENTES:
+(ninguno, porque no importa saber a que agente exactamente le pasa,
+sino a cuantos agentes dicho evento les pasa)
+
+
+
+

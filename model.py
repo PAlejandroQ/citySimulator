@@ -7,7 +7,7 @@ from imageProcessing import procesar_imagen
 from agents.WallAgent import WallAgent
 
 
-class MoneyModel(mesa.Model):
+class CityModel(mesa.Model):
     """A model with some number of agents."""
 
     def __init__(self, num_citizen, num_raider, width,
@@ -89,12 +89,10 @@ class MoneyModel(mesa.Model):
                              "victimasSorprendidas":victimasSorprendidas},
             # agent_reporters={"Wealth": "wealth"}
         )
-        # print("Holaaaaa")
 
     def step(self):
         self.datacollector.collect(self)
         self.schedule.step()
-        # print("Schedulando")
     def filterAvailableSpace(self,potentialPoints, onlyGridIn = False):
         if onlyGridIn:
             return [pos for pos in potentialPoints

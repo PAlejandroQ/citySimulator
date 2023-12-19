@@ -40,7 +40,7 @@ class RaiderAgent(mesa.Agent):
         possible_pos = list(set(temMax)-set(temMin))
         possible_pos = self.model.filterAvailableSpace(possible_pos)
         self.destinationPoint = self.random.choice(possible_pos)
-        print("Current Dest :",self.destinationPoint)
+        # print("Current Dest :",self.destinationPoint)
 
 
     def give_money(self):
@@ -128,14 +128,14 @@ class RaiderAgent(mesa.Agent):
 
         else:
             print("ERROR STATES!!!")
-        print(self.state)
+        # print(self.state)
     def move_walk(self, speed=1):
         possible_steps = self.model.grid.get_neighborhood(
             self.pos, moore=True, include_center=True, radius = speed
         )
         possible_steps = self.model.filterAvailableSpace(possible_steps)
         new_position = self.model.chooseUtils.closestPoint(possible_steps,self.destinationPoint)
-        print(new_position)
+        # print(new_position)
         if(self.model.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
         elif(self.model.schedule.steps % 6 == 0):
@@ -154,7 +154,7 @@ class RaiderAgent(mesa.Agent):
         )
         possible_steps = self.model.filterAvailableSpace(possible_steps)
         new_position = self.model.chooseUtils.closestPoint(possible_steps,self.victimIdentifier.pos)
-        print(new_position)
+        # print(new_position)
         if(self.model.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
         self.model.grid.move_agent(self, new_position)
@@ -168,7 +168,7 @@ class RaiderAgent(mesa.Agent):
         )
         possible_steps = self.model.filterAvailableSpace(possible_steps)
         new_position = self.model.chooseUtils.furthestPoint(possible_steps, self.victimIdentifier.pos)
-        print(new_position)
+        # print(new_position)
         if (self.model.chooseUtils.distance_beetween_points(new_position, self.destinationPoint) < 1):
             self.setNewDestination()
         self.model.grid.move_agent(self, new_position)

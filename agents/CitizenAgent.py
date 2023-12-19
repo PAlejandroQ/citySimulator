@@ -37,7 +37,7 @@ class CitizenAgent(mesa.Agent):
         possible_pos = list(set(temMax)-set(temMin))
         possible_pos = self.model.filterAvailableSpace(possible_pos)
         self.destinationPoint = self.random.choice(possible_pos)
-        print("Current Dest :",self.destinationPoint)
+        # print("Current Dest :",self.destinationPoint)
 
 
     def give_money(self):
@@ -107,14 +107,14 @@ class CitizenAgent(mesa.Agent):
             pass
         else:
             print("ERROR STATES!!!")
-        print(self.state)
+        # print(self.state)
     def move_walk(self,speed = 1):
         possible_steps = self.model.grid.get_neighborhood(
             self.pos, moore=True, include_center=True, radius = speed
         )
         possible_steps = self.model.filterAvailableSpace(possible_steps)
         new_position = self.chooseUtils.closestPoint(possible_steps,self.destinationPoint)
-        print(new_position)
+        # print(new_position)
         new_position = new_position if new_position is not None else self.pos
         if(self.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
@@ -134,7 +134,7 @@ class CitizenAgent(mesa.Agent):
         )
         possible_steps = self.model.filterAvailableSpace(possible_steps)
         new_position = self.chooseUtils.furthestPoint(possible_steps,self.raiderIdentifier.pos)
-        print(new_position)
+        # print(new_position)
         if(self.chooseUtils.distance_beetween_points(new_position,self.destinationPoint)<1):
             self.setNewDestination()
         self.model.grid.move_agent(self, new_position)
