@@ -1,6 +1,6 @@
 import mesa
 
-from utils import agentTypes
+from utils.utils import agentTypes
 class WallAgent(mesa.Agent):
     """An agent with fixed initial wealth."""
 

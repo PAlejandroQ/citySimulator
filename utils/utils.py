@@ -17,23 +17,6 @@ def compute_gini(model):
     return 1 + (1 / (N+1)) - 2 * B
 
 
-def sendGPS2API(self):
-    url = "http://10.108.218.139:8080/api/checkpoints"
-
-    payload = json.dumps({
-    "userId": 1,
-    "coordinates": {
-        "x": self.pos[0],
-        "y": self.pos[1]
-    },
-    "state": "ok"
-    })
-    headers = {
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDEwMTk2NjAsImV4cCI6MTcwMTAyNjg2MCwidXNlcklkIjoxLCJlbWFpbCI6ImFsZUB0ZXN0bWFpbC5jb20iLCJmaXJzdE5hbWUiOiJBbGVqYW5kcm8iLCJsYXN0TmFtZSI6Ik9sYWVjaGVhIn0.ERB3CniaJGq_u8AXz8Rqj7LFnZPqCWkbCQZ7J5LEcuo',
-    'Content-Type': 'application/json'
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
 
 class ChooseUtils():
     def __init__(self):

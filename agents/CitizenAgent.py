@@ -1,11 +1,7 @@
 import mesa
-import seaborn as sns
-import numpy as np
-import pandas as pd
+from utils.utils import citizenStates, raiderStates, ChooseUtils, agentTypes
 import requests
 import json
-from utils import sendGPS2API
-from utils import citizenStates, raiderStates, ChooseUtils, agentTypes
 # from RaiderAgent import RaiderAgent
 
 
@@ -24,6 +20,8 @@ class CitizenAgent(mesa.Agent):
         self.speed_citizen = model.speed_citizen
         self.lastPosition5Before = None
         self.completeObjetives = 0
+        self.token_value = None
+        self.initUserCredentials()
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
@@ -64,7 +62,7 @@ class CitizenAgent(mesa.Agent):
             self.move_assaulted()
         else:
             print("FAIL STATE!!!")
-        # sendGPS2API()
+        self.sendGPS2API()
         # if self.wealth > 0:
         #     self.give_money()
 
@@ -142,3 +140,50 @@ class CitizenAgent(mesa.Agent):
         self.move_suspicion(speed)
     def move_assaulted(self):
         pass # Keep same position
+
+    def sendGPS2API(self):
+        # url = "http://10.108.218.139:8080/api/checkpoints"
+        url = "http://localhost:8080/api/checkpoints"
+        payload = json.dumps({
+            "userId": self.unique_id,
+            "coordinates": {
+                "x": self.pos[0],
+                "y": self.pos[1]
+            },
+            "state": "ok"
+        })
+        headers = {
+            'Authorization': f'Bearer {self.token_value}',
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+    def initUserCredentials(self,host = 'localhost'):
+        url = "http://" + host + ":8080/api/users/register"
+        payload = json.dumps({
+            "firstName": f"User_{self.unique_id}",
+            "lastName": f"Citizen_{self.unique_id}",
+            "email": f"user{self.unique_id}@testmail.com",
+            "password": f"testPass{self.unique_id}"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        if response.status_code == 200:
+            self.extracToken(response)
+        elif response.status_code == 401:
+            url = "http://" + host + ":8080/api/users/login"
+            payload = json.dumps({
+                "email": f"user{self.unique_id}@testmail.com",
+                "password": f"testPass{self.unique_id}"
+            })
+            response = requests.request("POST", url, headers=headers, data=payload)
+            self.extracToken(response)
+    def extracToken(self,response):
+        try:
+            self.token_value = response.json()["token"]
+            # print("Token extraído:", token_value)
+        except KeyError:
+            raise Exception("La clave 'token' no se encuentra en la respuesta")
+

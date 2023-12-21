@@ -1,4 +1,4 @@
-from utils import agentTypes, raiderStates, citizenStates
+from utils.utils import agentTypes, raiderStates, citizenStates
 
 
 # import numpy as np

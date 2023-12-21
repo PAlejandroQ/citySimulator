@@ -1,11 +1,5 @@
 import mesa
-import seaborn as sns
-import numpy as np
-import pandas as pd
-import requests
-import json
-from utils import sendGPS2API
-from utils import citizenStates, raiderStates, agentTypes
+from utils.utils import citizenStates, raiderStates, agentTypes
 # from CitizenAgent import CitizenAgent
 
 

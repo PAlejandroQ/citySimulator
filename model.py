@@ -1,11 +1,12 @@
 import mesa
 from agents.CitizenAgent import CitizenAgent
 from agents.RaiderAgent import RaiderAgent
-from metrics import *
-from utils import compute_gini, ChooseUtils
-from imageProcessing import procesar_imagen
+from utils.metrics import *
+from utils.utils import ChooseUtils
+from utils.imageProcessing import procesar_imagen
 from agents.WallAgent import WallAgent
-
+import requests
+import json
 
 class CityModel(mesa.Model):
     """A model with some number of agents."""
