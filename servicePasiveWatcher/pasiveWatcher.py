@@ -2,6 +2,26 @@ import psycopg2
 import numpy as np
 from sklearn.cluster import KMeans
 from datetime import datetime
+import matplotlib.pyplot as plt
+def plotKmeans(kmeans):
+    labels = kmeans.labels_
+    centroids = kmeans.cluster_centers_
+
+    plt.scatter(coordinates[:, 0], coordinates[:, 1], c=labels, cmap='viridis', alpha=0.5, edgecolors='k')
+
+    plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='X', s=200, label='Centroids')
+
+    # Agregar leyenda y etiquetas
+    plt.legend()
+    plt.title('K-Means Clustering')
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+
+    # Mostrar el gráfico
+    plt.show()
+
+
+
 
 # Conexión a la base de datos PostgreSQL
 host = 'localhost'
@@ -28,10 +48,12 @@ try:
     coordinates = np.array([(float(row[3].split(',')[0][1:]), float(row[3].split(',')[1][:-1])) for row in rows])
 
     # Aplicación de k-means
-    kmeans = KMeans(n_clusters=4, n_init=10) # Ajusta el número de clusters según tu necesidad
+    kmeans = KMeans(n_clusters=5, n_init=10)
     kmeans.fit(coordinates)
     centroids = kmeans.cluster_centers_
+    plotKmeans(kmeans)
     print("OK Cluster Centers")
+
     # Formateo de los resultados
     results = []
     for i, centroid in enumerate(centroids):
@@ -62,3 +84,6 @@ finally:
     # Cerrar el cursor y la conexión
     cursor.close()
     conn.close()
+
+
+
