@@ -82,3 +82,14 @@ def victimasSorprendidas(model):
     temp = len(surVic) * 1.0 # / len(raAssa)
     model.metric_values_acum["victimasSorprendidas"] += temp
     return model.metric_values_acum["victimasSorprendidas"]
+
+def asaltosRealizados(model):
+    raiderAttack = [agent.numberAssaultsComplete for agent in model.schedule.agents
+                    if agent.typeAgent == agentTypes.RAIDER]
+    if model.num_raider == 0:
+        return 0.01
+    resultado = sum(raiderAttack)/model.num_raider
+    if resultado == 0:
+        return 0.01
+    else:
+        return resultado

@@ -23,7 +23,10 @@ class CitizenAgent(mesa.Agent):
         self.lastPosition5Before = None
         self.completeObjetives = 0
         self.token_value = None
-        self.initUserCredentials()
+        if self.model.use_system:
+            self.initUserCredentials()
+        self.alertedBySystem = 0
+        self.stateSystem = None
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
@@ -54,7 +57,7 @@ class CitizenAgent(mesa.Agent):
     def step(self):
         self.updateState()
         if self.state == citizenStates.WALK:
-            self.move_walk(self.speed_citizen)
+            self.move_walk(self.speed_citizen + self.alertedBySystem)
         elif self.state == citizenStates.SUSPICION:
             self.move_suspicion(self.speed_citizen)
         elif self.state == citizenStates.PURSUED:
@@ -63,11 +66,17 @@ class CitizenAgent(mesa.Agent):
             self.move_assaulted()
         else:
             print("FAIL STATE!!!")
-        self.sendGPS2API()
+
+        if self.model.use_system:
+            self.sendGPS2API()
         # if self.wealth > 0:
         #     self.give_money()
 
     def updateState(self):
+        if self.stateSystem is not None:
+            if self.stateSystem != "ok" and self.stateSystem != "untracker":
+                self.alertedBySystem = 1
+
         nearbyAgents = self.model.grid.get_neighbors(
             self.pos, moore=True, include_center=False, radius=self.model.distance_field_of_view_citizen
         )
@@ -148,7 +157,7 @@ class CitizenAgent(mesa.Agent):
 
     def sendGPS2API(self):
         # url = "http://10.108.218.139:8080/api/checkpoints"
-        url = "http://localhost:8080/api/checkpoints"
+        url = "http://localhost:8080/api/checkpoints" # HACER DINAMICO
         payload = json.dumps({
             # "userId": self.unique_id,
             "coordinates": {
@@ -163,6 +172,12 @@ class CitizenAgent(mesa.Agent):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
+        if response.status_code == 201:
+            try:
+                self.stateSystem = response.json()["state"]
+                # print("Token extraído:", token_value)
+            except KeyError:
+                raise Exception("Key 'state' isn't present in response")
 
     def initUserCredentials(self, host='localhost'):
 
@@ -196,4 +211,4 @@ class CitizenAgent(mesa.Agent):
             self.token_value = response.json()["token"]
             # print("Token extraído:", token_value)
         except KeyError:
-            raise Exception("La clave 'token' no se encuentra en la respuesta")
+            raise Exception("Key 'token' isn't present in response")

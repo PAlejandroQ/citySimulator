@@ -21,6 +21,7 @@ class RaiderAgent(mesa.Agent):
         self.speed_raider = model.speed_raider
         self.lastPosition5Before = None
         self.surprisedVictims = 0
+        self.numberAssaultsComplete = 0
 
     def setNewDestination(self):
         # print("posicion es :",self.pos)
@@ -113,6 +114,7 @@ class RaiderAgent(mesa.Agent):
             if self.countDownAssault == 0:
                 self.state = raiderStates.ESCAPE
                 self.victimIdentifier.state = citizenStates.WALK
+                self.numberAssaultsComplete += 1
                 # self.counDownNewAssault = 10
             else:
                 self.countDownAssault-=1
